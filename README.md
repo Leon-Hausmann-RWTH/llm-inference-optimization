@@ -51,3 +51,11 @@ A total of 21 trials were run on the Imperial HPC (L40S GPU + 100GB RAM + 4 Inte
 Mixed-precision INT8 weights with BF16 activations across all three module groups achieves the lowest loss, and matches uniform W8A16 as expected. W8A16 is expected to perform well since activations are most sensitive to quantisation as they vary with input. 
 
 FP8_DYNAMIC trails by ~4% in speed-up but maintains similar PPL penalty, with the overhead coming from on-the-fly scaling. In contrast, the uniform FP8 scheme recovers the speed-up at the cost of a higher PPL penalty. FP8_BLOCK consistently underperforms across all trials. Unlike NVIDIA Blackwell, which has silicon-level hardware support for block scales within the tensor instruction itself, the L40S (NVIDIA Ada Lovelace) implements block-wise scaling at the kernel level via CUTLASS: weights and activations are fed as FP8 into the Tensor Cores, matmul results are accumulated in FP32 registers, and then block-wise scaling are applied to the accumulators. However, because the model is already memory-bound and small matmuls completes almost instantaneously, overhead of added memory access outweighs the bandwidth savings from halving weight traffic.
+
+## Interesting Results
+| Trial | Scheme | PPL | Speed Gain (%) | Size vs Baseline | Comments |
+|---|---|---|---|---|---|
+| #9 | mp_FP8_DYNAMIC_FP8_BLOCK_FP8 | 3064 | +14.7% | −50.0% | Catastrophic perplexity increase indicating model collapse, |
+| #2 | FP8 | 61.9 | +23.0% | −50.0% | Good speed-up. However significant decrease in prediction quality. |
+| #4 | mp_FP8_BLOCK_W4A16_FP8_BLOCK | 40.95 | −11.7% | −55.7% | Second smallest model but slowest speed. |
+| #5 | mp_FP8_DYNAMIC_W8A16_FP8_DYNAMIC | 40.66 | +20.0% | −50.0% | Best non-uniform modifier configuration. |
