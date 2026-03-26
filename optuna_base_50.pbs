@@ -1,0 +1,20 @@
+#!/bin/bash
+#PBS -N optuna_base_50
+#PBS -l select=1:ncpus=4:mem=100gb:ngpus=1
+#PBS -l walltime=24:00:00
+
+cd ${PBS_O_WORKDIR}
+
+eval "$(~/miniforge3/bin/conda shell.bash hook)"
+conda activate vllm_env || { echo "Conda activate failed"; exit 1; }
+
+export CUDA_VISIBLE_DEVICES=0
+
+echo "=== Environment Info ==="
+nvidia-smi
+python -c "import torch; print('CUDA available:', torch.cuda.is_available()); print('GPU:', torch.cuda.get_device_name(0))"
+echo "========================"
+
+echo "Starting standard optuna_search.py for 50 trials..."
+python optuna_search.py --trials 50
+echo "Base search complete!"
