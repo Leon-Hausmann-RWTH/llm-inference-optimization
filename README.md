@@ -46,11 +46,6 @@ The third class is quality metrics, such as perplexity, pseudo-perplexity proxie
 
 For Qwen3-1.7B, quantization increased average total token throughput from approximately **16.6k** to **20.2k** tokens per second, corresponding to an average serving-side gain of about **1.22×**, while also reducing mean TTFT by about **15.9%**. This confirms that the optimization remains beneficial in a realistic serving environment even after accounting for runtime overhead.
 
-### Interpretation
-
-These results suggest that quantization is not merely a marginal extension to vLLM, but a meaningful second optimization layer. The gain is strongest where model execution is most constrained by memory movement, which explains why the largest model benefits the most. At the same time, the serving benchmark demonstrates that inference evaluation should not rely on controlled throughput measurements alone. A complete methodology must include both controlled and deployment-like evaluation regimes.
-
-
 ## Composite Objective NAS
 We employ the the composite objective as a loss to be minimised through optuna trials as:
 
